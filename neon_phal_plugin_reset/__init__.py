@@ -89,10 +89,11 @@ class DeviceReset(PHALPlugin):
                     subprocess.run(
                         "git clone "
                         "https://github.com/neongeckocom/neon-image-recipe "
-                        "/opt/neon/neon-image-recipe", check=True)
-                    rmtree(expanduser("~/.config"))
+                        "/opt/neon", check=True)
+                    rmtree(expanduser("~/.config/neon"))
                     copytree("/opt/neon/neon-image-recipe/05_neon_core/"
-                             "overlay/home/neon/.config", expanduser("~/.config"))
+                             "overlay/home/neon/.config",
+                             expanduser("~/.config/neon"))
                     rmtree("/opt/neon/neon-image-recipe")
                 except Exception as e:
                     LOG.exception(e)
