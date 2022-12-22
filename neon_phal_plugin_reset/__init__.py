@@ -86,10 +86,10 @@ class DeviceReset(PHALPlugin):
             else:
                 LOG.info("Loading default config from git")
                 try:
-                    subprocess.run(
-                        "git clone "
-                        "https://github.com/neongeckocom/neon-image-recipe "
-                        "/opt/neon", check=True)
+                    subprocess.run([
+                        "/usr/bin/git", "clone",
+                        "https://github.com/neongeckocom/neon-image-recipe",
+                        "/opt/neon/neon-image-recipe"], check=True)
                     rmtree(expanduser("~/.config/neon"))
                     copytree("/opt/neon/neon-image-recipe/05_neon_core/"
                              "overlay/home/neon/.config",
