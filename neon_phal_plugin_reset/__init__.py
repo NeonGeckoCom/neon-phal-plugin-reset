@@ -53,12 +53,13 @@ class DeviceReset(PHALPlugin):
                               {"skill_id": self.name}))
 
     def handle_register_factory_reset_handler(self, message):
-        LOG.debug("Got factor reset handler request")
+        LOG.debug("Got factory reset registration request")
         self.bus.emit(message.reply("system.factory.reset.register",
                                     {"skill_id": self.name}))
 
     def check_complete(self, message):
         if self.reset_compete:
+            LOG.debug("Notify reset is complete")
             completed_message = message.forward(
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
@@ -67,8 +68,8 @@ class DeviceReset(PHALPlugin):
         LOG.info("Handling factory reset request")
         if self.reset_lock.acquire(timeout=1):
             self.reset_compete = False
-            LOG.debug("Stopping skills service")
-            subprocess.run("systemctl stop neon-skills")
+            # LOG.debug("Stopping skills service")
+            # subprocess.run("systemctl stop neon-skills", timeout=30)
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
                 remove(expanduser(join('~', '.config', 'neon',
@@ -95,6 +96,7 @@ class DeviceReset(PHALPlugin):
                 rmtree(expanduser("~/venv"))
                 copytree("/opt/neon/original_venv", expanduser("~/venv"))
             self.reset_compete = True
+            LOG.debug("Notify reset is complete")
             self.bus.emit(message.forward(
                 "system.factory.reset.phal.complete", {"skill_id": self.name}))
             self.reset_lock.release()
