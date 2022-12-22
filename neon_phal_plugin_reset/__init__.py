@@ -92,6 +92,7 @@ class DeviceReset(PHALPlugin):
                 rmtree("/opt/neon/neon-image-recipe")
 
             if isdir('/opt/neon/original_venv'):
+                # TODO: An external service should handle this and restart core
                 LOG.info('Restoring original shipped Python environment')
                 rmtree(expanduser("~/venv"))
                 copytree("/opt/neon/original_venv", expanduser("~/venv"))
