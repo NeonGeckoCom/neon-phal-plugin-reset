@@ -64,6 +64,7 @@ class DeviceReset(PHALPlugin):
             self.bus.emit(completed_message)
 
     def handle_factory_reset(self, message):
+        LOG.info("Handling factory reset request")
         if self.reset_lock.acquire(timeout=1):
             self.reset_compete = False
             LOG.debug("Stopping skills service")
