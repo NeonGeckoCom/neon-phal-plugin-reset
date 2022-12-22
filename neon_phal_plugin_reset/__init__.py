@@ -29,7 +29,7 @@
 import subprocess
 
 from os import remove
-from os.path import join, expanduser, isdir
+from os.path import expanduser, isdir, isfile
 from shutil import copytree, rmtree
 from threading import RLock
 from mycroft_bus_client import Message
@@ -73,8 +73,10 @@ class DeviceReset(PHALPlugin):
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
                 try:
-                    remove(expanduser('~/.config/neon/ngi_user_info.yml'))
-                    remove(expanduser('~/.config/neon/.ngi_user_info.tmp'))
+                    for file in ('~/.config/neon/ngi_user_info.yml',
+                                 '~/.config/neon/.ngi_user_info.tmp'):
+                        if isfile(expanduser(file)):
+                            remove(expanduser(file))
                 except Exception as e:
                     LOG.exception(e)
             if isdir('/opt/neon/default_config'):
@@ -83,20 +85,23 @@ class DeviceReset(PHALPlugin):
                 copytree("/opt/neon/default_config", expanduser("~/.config"))
             else:
                 LOG.info("Loading default config from git")
-                subprocess.run(
-                    "git clone "
-                    "https://github.com/neongeckocom/neon-image-recipe "
-                    "/opt/neon/neon-image-recipe", check=True)
-                rmtree(expanduser("~/.config"))
-                copytree("/opt/neon/neon-image-recipe/05_neon_core/"
-                         "overlay/home/neon/.config", expanduser("~/.config"))
-                rmtree("/opt/neon/neon-image-recipe")
-
+                try:
+                    subprocess.run(
+                        "git clone "
+                        "https://github.com/neongeckocom/neon-image-recipe "
+                        "/opt/neon/neon-image-recipe", check=True)
+                    rmtree(expanduser("~/.config"))
+                    copytree("/opt/neon/neon-image-recipe/05_neon_core/"
+                             "overlay/home/neon/.config", expanduser("~/.config"))
+                    rmtree("/opt/neon/neon-image-recipe")
+                except Exception as e:
+                    LOG.exception(e)
             if isdir('/opt/neon/original_venv'):
-                # TODO: An external service should handle this and restart core
-                LOG.info('Restoring original shipped Python environment')
-                rmtree(expanduser("~/venv"))
-                copytree("/opt/neon/original_venv", expanduser("~/venv"))
+                pass
+                # # TODO: An external service should handle this and restart core
+                # LOG.info('Restoring original shipped Python environment')
+                # rmtree(expanduser("~/venv"))
+                # copytree("/opt/neon/original_venv", expanduser("~/venv"))
             self.reset_compete = True
             LOG.debug("Notify reset is complete")
             self.bus.emit(message.forward(
