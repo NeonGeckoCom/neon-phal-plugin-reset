@@ -72,10 +72,11 @@ class DeviceReset(PHALPlugin):
             # subprocess.run("systemctl stop neon-skills", timeout=30)
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
-                remove(expanduser(join('~', '.config', 'neon',
-                                       'ngi_user_info.yml')))
-                remove(expanduser(join('~', '.config', 'neon',
-                                       '.ngi_user_info.tmp')))
+                try:
+                    remove(expanduser('~/.config/neon/ngi_user_info.yml'))
+                    remove(expanduser('~/.config/neon/.ngi_user_info.tmp'))
+                except Exception as e:
+                    LOG.exception(e)
             if isdir('/opt/neon/default_config'):
                 LOG.info("Restoring default ~/.config from /opt/neon/default_config")
                 rmtree(expanduser("~/.config"))
