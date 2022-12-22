@@ -29,7 +29,7 @@
 import subprocess
 
 from os import remove
-from os.path import expanduser, isdir, isfile
+from os.path import isdir, isfile
 from shutil import copytree, rmtree
 from threading import RLock
 from mycroft_bus_client import Message
@@ -73,16 +73,16 @@ class DeviceReset(PHALPlugin):
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
                 try:
-                    for file in ('~/.config/neon/ngi_user_info.yml',
-                                 '~/.config/neon/.ngi_user_info.tmp'):
-                        if isfile(expanduser(file)):
-                            remove(expanduser(file))
+                    for file in ('/home/neon/.config/neon/ngi_user_info.yml',
+                                 '/home/neon/.config/neon/.ngi_user_info.tmp'):
+                        if isfile(file):
+                            remove(file)
                 except Exception as e:
                     LOG.exception(e)
             if isdir('/opt/neon/default_config'):
                 LOG.info("Restoring default ~/.config from /opt/neon/default_config")
-                rmtree(expanduser("~/.config"))
-                copytree("/opt/neon/default_config", expanduser("~/.config"))
+                rmtree("/home/neon/.config")
+                copytree("/opt/neon/default_config", "/home/neon/.config")
             else:
                 LOG.info("Loading default config from git")
                 try:
@@ -91,10 +91,10 @@ class DeviceReset(PHALPlugin):
                         "https://github.com/neongeckocom/neon-image-recipe",
                         "/opt/neon/neon-image-recipe"], check=True)
                     LOG.debug(f"Cloned image repo")
-                    rmtree(expanduser("~/.config/neon"))
+                    rmtree("/home/neon/.config/neon")
                     copytree("/opt/neon/neon-image-recipe/05_neon_core/"
                              "overlay/home/neon/.config/neon",
-                             expanduser("~/.config/neon"))
+                             "/home/neon/.config/neon")
                     LOG.debug("Restored default config")
                     rmtree("/opt/neon/neon-image-recipe")
                 except Exception as e:
