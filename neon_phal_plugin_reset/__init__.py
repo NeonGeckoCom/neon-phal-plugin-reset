@@ -90,10 +90,12 @@ class DeviceReset(PHALPlugin):
                         "/usr/bin/git", "clone",
                         "https://github.com/neongeckocom/neon-image-recipe",
                         "/opt/neon/neon-image-recipe"], check=True)
+                    LOG.debug(f"Cloned image repo")
                     rmtree(expanduser("~/.config/neon"))
                     copytree("/opt/neon/neon-image-recipe/05_neon_core/"
-                             "overlay/home/neon/.config",
+                             "overlay/home/neon/.config/neon",
                              expanduser("~/.config/neon"))
+                    LOG.debug("Restored default config")
                     rmtree("/opt/neon/neon-image-recipe")
                 except Exception as e:
                     LOG.exception(e)
