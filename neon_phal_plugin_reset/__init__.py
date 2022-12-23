@@ -99,6 +99,7 @@ class DeviceReset(PHALPlugin):
                     rmtree("/opt/neon/neon-image-recipe")
                 except Exception as e:
                     LOG.exception(e)
+            subprocess.run(["chown", "-R", "neon:neon", "/home/neon"])
             if isdir('/opt/neon/original_venv'):
                 pass
                 # # TODO: An external service should handle this and restart core
