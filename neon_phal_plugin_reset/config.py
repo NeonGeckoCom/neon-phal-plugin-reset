@@ -26,26 +26,15 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import click
 import requests
-from click_default_group import DefaultGroup
 
 
-@click.group("neon_reset", cls=DefaultGroup,
-             no_args_is_help=True, invoke_without_command=True,
-             help="Neon Core Commands\n\n"
-                  "See also: neon COMMAND --help")
-def neon_reset_cli():
-    pass
-
-
-@neon_reset_cli.command(help="Configure Reset Service")
 def configure_reset():
     from os import remove
     from os.path import isfile, expanduser
     from subprocess import run
     if isfile("/usr/lib/systemd/system/neon-reset.service"):
-        click.echo("Reset service already enabled")
+        print("Reset service already enabled")
         exit(0)
     script = requests.get('https://raw.githubusercontent.com/NeonGeckoCom/'
                           'neon-image-recipe/FEAT_FactoryReset/patches/'
@@ -55,4 +44,4 @@ def configure_reset():
         f.write(script)
     run(['/bin/bash', script_path])
     remove(script_path)
-    click.echo("Reset service configured")
+    print("Reset service configured")

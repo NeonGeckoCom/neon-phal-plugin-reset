@@ -26,8 +26,17 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from distutils.command.install import install
 from setuptools import setup, find_packages
 from os import path, getenv
+
+
+class CustomInstall(install):
+    def run(self):
+        super().run()
+        from neon_phal_plugin_reset.config import configure_reset
+        configure_reset()
+
 
 PLUGIN_ENTRY_POINT = "neon-phal-plugin-reset=neon_phal_plugin_reset:DeviceReset"
 BASEDIR = path.abspath(path.dirname(__file__))
@@ -76,9 +85,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=get_requirements('requirements.txt'),
     packages=find_packages(),
+    cmdclass={'install': CustomInstall},
     include_package_data=True,
-    entry_points={'ovos.plugin.phal.admin': PLUGIN_ENTRY_POINT,
-                  'console_scripts': [
-                      'neon-reset: neon_phal_plugin_reset.cli:neon_reset_cli'
-                  ]}
+    entry_points={'ovos.plugin.phal.admin': PLUGIN_ENTRY_POINT}
 )
