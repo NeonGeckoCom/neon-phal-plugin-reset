@@ -43,6 +43,7 @@ class DeviceReset(PHALPlugin):
         PHALPlugin.__init__(self, bus, name, config)
         self.reset_compete = False
         self.reset_lock = RLock()
+        self.username = self.config.get('username') or 'neon'
         self.bus.on("system.factory.reset.start", self.handle_factory_reset)
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
@@ -73,16 +74,17 @@ class DeviceReset(PHALPlugin):
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
                 try:
-                    for file in ('/home/neon/.config/neon/ngi_user_info.yml',
-                                 '/home/neon/.config/neon/.ngi_user_info.tmp'):
+                    for file in (f'/home/{self.username}/.config/neon/ngi_user_info.yml',
+                                 f'/home/{self.username}/.config/neon/.ngi_user_info.tmp'):
                         if isfile(file):
                             remove(file)
                 except Exception as e:
                     LOG.exception(e)
             if isdir('/opt/neon/default_config'):
                 LOG.info("Restoring default ~/.config from /opt/neon/default_config")
-                rmtree("/home/neon/.config")
-                copytree("/opt/neon/default_config", "/home/neon/.config")
+                rmtree(f"/home/{self.username}/.config")
+                copytree("/opt/neon/default_config",
+                         f"/home/{self.username}/.config")
             else:
                 LOG.info("Loading default config from git")
                 try:
@@ -91,15 +93,16 @@ class DeviceReset(PHALPlugin):
                         "https://github.com/neongeckocom/neon-image-recipe",
                         "/opt/neon/neon-image-recipe"], check=True)
                     LOG.debug(f"Cloned image repo")
-                    rmtree("/home/neon/.config/neon")
-                    copytree("/opt/neon/neon-image-recipe/05_neon_core/"
-                             "overlay/home/neon/.config/neon",
-                             "/home/neon/.config/neon")
+                    rmtree(f"/home/{self.username}/.config/neon")
+                    copytree(f"/opt/neon/neon-image-recipe/05_neon_core/"
+                             f"overlay/home/neon/.config/neon",
+                             f"/home/{self.username}/.config/neon")
                     LOG.debug("Restored default config")
                     rmtree("/opt/neon/neon-image-recipe")
                 except Exception as e:
                     LOG.exception(e)
-            subprocess.run(["chown", "-R", "neon:neon", "/home/neon"])
+            subprocess.run(["chown", "-R", f"{self.username}:{self.username}",
+                            f"/home/{self.username}"])
             if isdir('/opt/neon/original_venv'):
                 pass
                 # # TODO: An external service should handle this and restart core
