@@ -34,8 +34,11 @@ from os import path, getenv
 class CustomInstall(install):
     def run(self):
         super().run()
-        from neon_phal_plugin_reset.config import configure_reset
-        configure_reset()
+        try:
+            from neon_phal_plugin_reset.config import configure_reset
+            configure_reset()
+        except Exception as e:
+            print(e)
 
 
 PLUGIN_ENTRY_POINT = "neon-phal-plugin-reset=neon_phal_plugin_reset:DeviceReset"

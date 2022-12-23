@@ -44,7 +44,8 @@ class DeviceReset(PHALPlugin):
         self.reset_compete = False
         self.reset_lock = RLock()
         self.username = self.config.get('username') or 'neon'
-        self.reset_command = self.config.get('reset_command')
+        self.reset_command = self.config.get('reset_command',
+                                             "systemctl start neon-reset")
         self.bus.on("system.factory.reset.start", self.handle_factory_reset)
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
