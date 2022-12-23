@@ -44,6 +44,7 @@ class DeviceReset(PHALPlugin):
         self.reset_compete = False
         self.reset_lock = RLock()
         self.username = self.config.get('username') or 'neon'
+        self.reset_command = self.config.get('reset_command')
         self.bus.on("system.factory.reset.start", self.handle_factory_reset)
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
@@ -103,12 +104,9 @@ class DeviceReset(PHALPlugin):
                     LOG.exception(e)
             subprocess.run(["chown", "-R", f"{self.username}:{self.username}",
                             f"/home/{self.username}"])
-            if isdir('/opt/neon/original_venv'):
-                pass
-                # # TODO: An external service should handle this and restart core
-                # LOG.info('Restoring original shipped Python environment')
-                # rmtree(expanduser("~/venv"))
-                # copytree("/opt/neon/original_venv", expanduser("~/venv"))
+            if self.reset_command:
+                LOG.info(f"Calling {self.reset_command}")
+                subprocess.Popen(self.reset_command)
             self.reset_compete = True
             LOG.debug("Notify reset is complete")
             self.bus.emit(message.forward(

@@ -77,5 +77,8 @@ setup(
     install_requires=get_requirements('requirements.txt'),
     packages=find_packages(),
     include_package_data=True,
-    entry_points={'ovos.plugin.phal.admin': PLUGIN_ENTRY_POINT}
+    entry_points={'ovos.plugin.phal.admin': PLUGIN_ENTRY_POINT,
+                  'console_scripts': [
+                      'neon-reset: neon_phal_plugin_reset.cli:neon_reset_cli'
+                  ]}
 )
