@@ -82,29 +82,25 @@ class DeviceReset(PHALPlugin):
                             remove(file)
                 except Exception as e:
                     LOG.exception(e)
-            if isdir('/opt/neon/default_config'):
-                LOG.info("Restoring default ~/.config from /opt/neon/default_config")
-                rmtree(f"/home/{self.username}/.config")
-                copytree("/opt/neon/default_config",
-                         f"/home/{self.username}/.config")
-            else:
-                LOG.info("Loading default config from git")
-                try:
-                    subprocess.run([
-                        "/usr/bin/git", "clone",
-                        "https://github.com/neongeckocom/neon-image-recipe",
-                        "/opt/neon/neon-image-recipe"], check=True)
-                    LOG.debug(f"Cloned image repo")
-                    rmtree(f"/home/{self.username}/.config/neon")
-                    copytree(f"/opt/neon/neon-image-recipe/05_neon_core/"
-                             f"overlay/home/neon/.config/neon",
-                             f"/home/{self.username}/.config/neon")
-                    LOG.debug("Restored default config")
-                    rmtree("/opt/neon/neon-image-recipe")
-                except Exception as e:
-                    LOG.exception(e)
-            subprocess.run(["chown", "-R", f"{self.username}:{self.username}",
-                            f"/home/{self.username}"])
+
+            # LOG.info("Loading default config from git")
+            # # TODO: Get recipe ref from /opt/neon/build_info.json?
+            # try:
+            #     subprocess.run([
+            #         "/usr/bin/git", "clone",
+            #         "https://github.com/neongeckocom/neon-image-recipe",
+            #         "/opt/neon/neon-image-recipe"], check=True)
+            #     LOG.debug(f"Cloned image repo")
+            #     rmtree(f"/home/{self.username}/.config/neon")
+            #     copytree(f"/opt/neon/neon-image-recipe/05_neon_core/"
+            #              f"overlay/home/neon/.config/neon",
+            #              f"/home/{self.username}/.config/neon")
+            #     LOG.debug("Restored default config")
+            #     rmtree("/opt/neon/neon-image-recipe")
+            # except Exception as e:
+            #     LOG.exception(e)
+            # subprocess.run(["chown", "-R", f"{self.username}:{self.username}",
+            #                 f"/home/{self.username}"])
             if self.reset_command:
                 LOG.info(f"Calling {self.reset_command}")
                 subprocess.Popen(self.reset_command)

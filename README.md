@@ -2,3 +2,6 @@
 Plugin to handle factory reset requests. Note that this plugin will install system
 services and modify system config as part of its installation. Installation may
 fail if not completed as `root`.
+
+## Reset Service
+This plugin will install and enable `neon-reset.service` from 

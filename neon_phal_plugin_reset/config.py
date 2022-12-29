@@ -30,6 +30,9 @@ import requests
 
 
 def configure_reset():
+    """
+    Configure the reset SystemD service.
+    """
     from os import remove
     from os.path import isfile, expanduser
     from subprocess import run
