@@ -38,7 +38,7 @@ def configure_reset():
     from subprocess import run
     if isfile("/usr/lib/systemd/system/neon-reset.service"):
         print("Reset service already enabled")
-        exit(0)
+        return
     script = requests.get('https://raw.githubusercontent.com/NeonGeckoCom/'
                           'neon-image-recipe/FEAT_FactoryReset/patches/'
                           'add_reset_service.sh').text
