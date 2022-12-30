@@ -40,7 +40,7 @@ def configure_reset():
         print("Reset service already enabled")
         return
     script = requests.get('https://raw.githubusercontent.com/NeonGeckoCom/'
-                          'neon-image-recipe/FEAT_FactoryReset/patches/'
+                          'neon-image-recipe/master/patches/'
                           'add_reset_service.sh').text
     script_path = expanduser('~/.cache/add_reset_service.sh')
     with open(script_path, 'w+') as f:
