@@ -32,8 +32,8 @@ from os import path, getenv
 
 
 class CustomInstall(install):
-    def run(self, *args, **kwargs):
-        super().run(*args, **kwargs)
+    def run(self):
+        super().run()
         try:
             from neon_phal_plugin_reset.config import configure_reset
             configure_reset()
