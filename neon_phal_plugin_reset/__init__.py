@@ -26,11 +26,9 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import subprocess
-
+from subprocess import Popen
 from os import remove
-from os.path import isdir, isfile
-from shutil import copytree, rmtree
+from os.path import isfile
 from threading import RLock
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
@@ -75,9 +73,12 @@ class DeviceReset(PHALPlugin):
             # subprocess.run("systemctl stop neon-skills", timeout=30)
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
+                config_files = (
+                    f'/home/{self.username}/.config/neon/ngi_user_info.yml',
+                    f'/home/{self.username}/.config/neon/.ngi_user_info.tmp'
+                )
                 try:
-                    for file in (f'/home/{self.username}/.config/neon/ngi_user_info.yml',
-                                 f'/home/{self.username}/.config/neon/.ngi_user_info.tmp'):
+                    for file in config_files:
                         if isfile(file):
                             remove(file)
                 except Exception as e:
@@ -103,7 +104,7 @@ class DeviceReset(PHALPlugin):
             #                 f"/home/{self.username}"])
             if self.reset_command:
                 LOG.info(f"Calling {self.reset_command}")
-                subprocess.Popen(self.reset_command)
+                Popen(self.reset_command, shell=True, start_new_session=True)
             self.reset_compete = True
             LOG.debug("Notify reset is complete")
             self.bus.emit(message.forward(
