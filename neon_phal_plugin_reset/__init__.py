@@ -49,6 +49,8 @@ class DeviceReset(PHALPlugin):
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.check_complete)
 
+        # TODO: Add option to reset to latest config
+
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
                               {"skill_id": self.name}))
@@ -66,11 +68,13 @@ class DeviceReset(PHALPlugin):
             self.bus.emit(completed_message)
 
     def handle_factory_reset(self, message):
+        """
+        Handle a `system.factory.reset.start` request. This should put Neon in
+        the state it was in when this plugin was installed.
+        """
         LOG.info("Handling factory reset request")
         if self.reset_lock.acquire(timeout=1):
             self.reset_compete = False
-            # LOG.debug("Stopping skills service")
-            # subprocess.run("systemctl stop neon-skills", timeout=30)
             if message.data.get('wipe_configs', True):
                 LOG.debug(f"Removing user configuration")
                 config_files = (
@@ -84,24 +88,6 @@ class DeviceReset(PHALPlugin):
                 except Exception as e:
                     LOG.exception(e)
 
-            # LOG.info("Loading default config from git")
-            # # TODO: Get recipe ref from /opt/neon/build_info.json?
-            # try:
-            #     subprocess.run([
-            #         "/usr/bin/git", "clone",
-            #         "https://github.com/neongeckocom/neon-image-recipe",
-            #         "/opt/neon/neon-image-recipe"], check=True)
-            #     LOG.debug(f"Cloned image repo")
-            #     rmtree(f"/home/{self.username}/.config/neon")
-            #     copytree(f"/opt/neon/neon-image-recipe/05_neon_core/"
-            #              f"overlay/home/neon/.config/neon",
-            #              f"/home/{self.username}/.config/neon")
-            #     LOG.debug("Restored default config")
-            #     rmtree("/opt/neon/neon-image-recipe")
-            # except Exception as e:
-            #     LOG.exception(e)
-            # subprocess.run(["chown", "-R", f"{self.username}:{self.username}",
-            #                 f"/home/{self.username}"])
             if self.reset_command:
                 LOG.info(f"Calling {self.reset_command}")
                 Popen(self.reset_command, shell=True, start_new_session=True)
