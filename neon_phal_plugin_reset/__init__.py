@@ -91,7 +91,8 @@ class DeviceReset(PHALPlugin):
             if message.data.get('wipe_config'):
                 self.handle_reset_config(True, True)
             return
-        LOG.info("Handling factory reset request")
+        LOG.info(f"Handling factory reset request: data={message.data} "
+                 f"context={message.context}")
         if self.reset_lock.acquire(timeout=1):
             self.reset_compete = False
             if message.data.get('wipe_configs', True):
