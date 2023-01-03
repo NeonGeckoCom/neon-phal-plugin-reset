@@ -26,6 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from time import time, sleep
 from shutil import move
 from subprocess import Popen
 from os import remove
@@ -34,6 +35,7 @@ from threading import RLock
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
+from ovos_config.locations import WEB_CONFIG_CACHE
 
 from ovos_skill_installer import download_extract_zip
 
@@ -47,11 +49,10 @@ class DeviceReset(PHALPlugin):
         self.username = self.config.get('username') or 'neon'
         self.reset_command = self.config.get('reset_command',
                                              "systemctl start neon-reset")
-        self.bus.on("system.factory.reset.start", self.handle_factory_reset)
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
-        self.bus.on('system.factory.reset.phal', self.check_complete)
-
+        self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
+        self.bus.on("system.factory.reset", self.handle_reset_config)
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
                               {"skill_id": self.name}))
@@ -68,11 +69,19 @@ class DeviceReset(PHALPlugin):
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
 
-    def handle_reset_config(self, do_core=False, do_skills=False):
+    def handle_reset_config(self, message):
         """
         Handle a request to reset configuration
         """
-        LOG.debug(f"do_core={do_core}, do_skills={do_skills}")
+        if not message.data.get('wipe_configs') and \
+                not message.data.get('reset_hardware'):
+            LOG.debug(f"Ignoring reset: {message.data}")
+            return
+
+        timeout = time() + 10
+        while isfile(WEB_CONFIG_CACHE) and time() < timeout:
+            sleep(1)
+        LOG.info("Getting default config for Neon")
         download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
         LOG.debug(f"Downloading from {download_url}")
         download_extract_zip(download_url, "/tmp/neon/")
