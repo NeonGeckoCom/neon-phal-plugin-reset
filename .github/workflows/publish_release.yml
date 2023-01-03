@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Distribution Packages
         run: |
-          python setup.py bdist_wheel
+          python setup.py sdist
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
