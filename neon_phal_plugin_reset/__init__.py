@@ -35,7 +35,6 @@ from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
 
-from ovos_skills_manager.github.utils import download_url_from_github_url
 from ovos_skill_installer import download_extract_zip
 
 
@@ -74,8 +73,7 @@ class DeviceReset(PHALPlugin):
         Handle a request to reset configuration
         """
         LOG.debug(f"do_core={do_core}, do_skills={do_skills}")
-        download_url = download_url_from_github_url(
-            "https://github.com/neongeckocom/neon-image-recipe", "master")
+        download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
         LOG.debug(f"Downloading from {download_url}")
         download_extract_zip(download_url, "/tmp/neon/")
 
