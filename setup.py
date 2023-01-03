@@ -45,7 +45,7 @@ PLUGIN_ENTRY_POINT = "neon-phal-plugin-reset=neon_phal_plugin_reset:DeviceReset"
 BASEDIR = path.abspath(path.dirname(__file__))
 
 
-with open("./version.py", "r", encoding="utf-8") as v:
+with open("./neon_phal_plugin_reset/version.py", "r", encoding="utf-8") as v:
     for line in v.readlines():
         if line.startswith("__version__"):
             if '"' in line:
