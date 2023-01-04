@@ -90,7 +90,8 @@ class DeviceReset(PHALPlugin):
         move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
              "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
         move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
-             "/home/neon/.config/neon", "/home/neon/.config/neon")
+             "/home/neon/.config/neon", "/home/neon/.config")
+        Popen("chown -R neon:neon /home/neon", shell=True)
         LOG.info(f"Restored default configuration")
 
     def handle_factory_reset(self, message):
