@@ -26,7 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from shutil import move
+from shutil import move, rmtree
 from subprocess import Popen
 from os import remove
 from os.path import isfile
@@ -90,6 +90,7 @@ class DeviceReset(PHALPlugin):
                 move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
                      "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
             LOG.info(f"Restored default configuration")
+            rmtree("/tmp/neon/neon-image-recipe-master")
         except Exception as e:
             LOG.exception(e)
         self.bus.emit(message.forward("system.mycroft.service.restart"))
