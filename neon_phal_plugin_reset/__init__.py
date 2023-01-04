@@ -52,7 +52,6 @@ class DeviceReset(PHALPlugin):
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
-        self.bus.on("system.factory.reset", self.handle_reset_config)
         self.bus.on("neon.update_config", self.handle_update_config)
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
@@ -70,25 +69,11 @@ class DeviceReset(PHALPlugin):
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
 
-    def handle_reset_config(self, message):
+    def handle_update_config(self, message):
         """
-        Handle a request to reset configuration
+        Handle a request to update configuration. Restarts core services after
+        update to ensure reload of default params
         """
-        if message.data.get('reset_hardware') or \
-                not message.data.get('wipe_config'):
-            LOG.debug(f"Ignoring reset: {message.data}")
-            return
-
-        timeout = time() + 10
-        while isfile(WEB_CONFIG_CACHE) and time() < timeout:
-            sleep(1)
-
-        message.data['skill_config'] = True
-        message.data['system_config'] = True
-        self.handle_update_config(message)
-
-    @staticmethod
-    def handle_update_config(message):
         LOG.info("Getting default config for Neon")
         download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
         LOG.debug(f"Downloading from {download_url}")
@@ -110,15 +95,12 @@ class DeviceReset(PHALPlugin):
             LOG.info(f"Restored default configuration")
         except Exception as e:
             LOG.exception(e)
+        self.bus.emit(message.forward("system.mycroft.service.restart"))
 
     def handle_factory_reset(self, message):
         """
-        Handle a `system.factory.reset.start` request.
+        Handle a `system.factory.reset.phal` request.
         """
-        if not message.data.get("reset_hardware", True):
-            if message.data.get('wipe_config'):
-                self.handle_reset_config(True, True)
-            return
         LOG.info(f"Handling factory reset request: data={message.data} "
                  f"context={message.context}")
         if self.reset_lock.acquire(timeout=1):
