@@ -85,7 +85,7 @@ class DeviceReset(PHALPlugin):
                        "/overlay/home/neon/.config/neon",
                        "/home/neon/.config/"])
                 Popen("chown -R neon:neon /home/neon", shell=True)
-            if message.data.get('system_config'):
+            if message.data.get('core_config'):
                 LOG.debug("Updating system config from default")
                 move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
                      "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
