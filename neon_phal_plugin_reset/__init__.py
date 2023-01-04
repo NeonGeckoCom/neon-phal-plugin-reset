@@ -26,7 +26,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from time import time, sleep
 from shutil import move
 from subprocess import Popen
 from os import remove
@@ -35,8 +34,6 @@ from threading import RLock
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
-from ovos_config.locations import WEB_CONFIG_CACHE
-
 from ovos_skill_installer import download_extract_zip
 
 
