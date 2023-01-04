@@ -87,10 +87,11 @@ class DeviceReset(PHALPlugin):
         download_extract_zip(download_url, "/tmp/neon/")
 
         # Contents are now at /tmp/neon/neon-image-recipe
-        move("/tmp/neon/neon-image-recipe/05_neon_core/overlay"
+        move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
              "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
-        move("/tmp/neon/neon-image-recipe/05_neon_core/overlay"
+        move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
              "/home/neon/.config/neon", "/home/neon/.config/neon")
+        LOG.info(f"Restored default configuration")
 
     def handle_factory_reset(self, message):
         """
