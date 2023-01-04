@@ -26,6 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from shutil import move
 from subprocess import Popen
 from os import remove
 from os.path import isfile
@@ -33,6 +34,7 @@ from threading import RLock
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
+from ovos_skill_installer import download_extract_zip
 
 
 class DeviceReset(PHALPlugin):
@@ -44,13 +46,10 @@ class DeviceReset(PHALPlugin):
         self.username = self.config.get('username') or 'neon'
         self.reset_command = self.config.get('reset_command',
                                              "systemctl start neon-reset")
-        self.bus.on("system.factory.reset.start", self.handle_factory_reset)
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
-        self.bus.on('system.factory.reset.phal', self.check_complete)
-
-        # TODO: Add option to reset to latest config
-
+        self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
+        self.bus.on("neon.update_config", self.handle_update_config)
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
                               {"skill_id": self.name}))
@@ -67,12 +66,40 @@ class DeviceReset(PHALPlugin):
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
 
+    def handle_update_config(self, message):
+        """
+        Handle a request to update configuration. Restarts core services after
+        update to ensure reload of default params
+        """
+        LOG.info("Getting default config for Neon")
+        download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
+        LOG.debug(f"Downloading from {download_url}")
+        download_extract_zip(download_url, "/tmp/neon/")
+
+        # Contents are now at /tmp/neon/neon-image-recipe
+        try:
+            if message.data.get('skill_config'):
+                LOG.debug("Updating skill config from default")
+                Popen(["/usr/bin/cp", "-r",
+                       "/tmp/neon/neon-image-recipe-master/05_neon_core"
+                       "/overlay/home/neon/.config/neon",
+                       "/home/neon/.config/"])
+                Popen("chown -R neon:neon /home/neon", shell=True)
+            if message.data.get('system_config'):
+                LOG.debug("Updating system config from default")
+                move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
+                     "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
+            LOG.info(f"Restored default configuration")
+        except Exception as e:
+            LOG.exception(e)
+        self.bus.emit(message.forward("system.mycroft.service.restart"))
+
     def handle_factory_reset(self, message):
         """
-        Handle a `system.factory.reset.start` request. This should put Neon in
-        the state it was in when this plugin was installed.
+        Handle a `system.factory.reset.phal` request.
         """
-        LOG.info("Handling factory reset request")
+        LOG.info(f"Handling factory reset request: data={message.data} "
+                 f"context={message.context}")
         if self.reset_lock.acquire(timeout=1):
             self.reset_compete = False
             if message.data.get('wipe_configs', True):
