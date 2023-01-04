@@ -73,8 +73,8 @@ class DeviceReset(PHALPlugin):
         """
         Handle a request to reset configuration
         """
-        if not message.data.get('wipe_configs') and \
-                not message.data.get('reset_hardware'):
+        if message.data.get('reset_hardware') or \
+                not message.data.get('wipe_config'):
             LOG.debug(f"Ignoring reset: {message.data}")
             return
 
