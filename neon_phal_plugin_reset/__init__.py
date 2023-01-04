@@ -53,6 +53,7 @@ class DeviceReset(PHALPlugin):
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
         self.bus.on("system.factory.reset", self.handle_reset_config)
+        self.bus.on("neon.update_config", self.handle_update_config)
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
                               {"skill_id": self.name}))
@@ -69,8 +70,7 @@ class DeviceReset(PHALPlugin):
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
 
-    @staticmethod
-    def handle_reset_config(message):
+    def handle_reset_config(self, message):
         """
         Handle a request to reset configuration
         """
@@ -82,6 +82,13 @@ class DeviceReset(PHALPlugin):
         timeout = time() + 10
         while isfile(WEB_CONFIG_CACHE) and time() < timeout:
             sleep(1)
+
+        message.data['skill_config'] = True
+        message.data['system_config'] = True
+        self.handle_update_config(message)
+
+    @staticmethod
+    def handle_update_config(message):
         LOG.info("Getting default config for Neon")
         download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
         LOG.debug(f"Downloading from {download_url}")
@@ -89,13 +96,17 @@ class DeviceReset(PHALPlugin):
 
         # Contents are now at /tmp/neon/neon-image-recipe
         try:
-            Popen(["/usr/bin/cp", "-r",
-                   "/tmp/neon/neon-image-recipe-master/05_neon_core"
-                   "/overlay/home/neon/.config/neon",
-                   "/home/neon/.config/"])
-            move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
-                 "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
-            Popen("chown -R neon:neon /home/neon", shell=True)
+            if message.data.get('skill_config'):
+                LOG.debug("Updating skill config from default")
+                Popen(["/usr/bin/cp", "-r",
+                       "/tmp/neon/neon-image-recipe-master/05_neon_core"
+                       "/overlay/home/neon/.config/neon",
+                       "/home/neon/.config/"])
+                Popen("chown -R neon:neon /home/neon", shell=True)
+            if message.data.get('system_config'):
+                LOG.debug("Updating system config from default")
+                move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
+                     "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
             LOG.info(f"Restored default configuration")
         except Exception as e:
             LOG.exception(e)
