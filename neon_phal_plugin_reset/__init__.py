@@ -27,7 +27,7 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from time import time, sleep
-from shutil import move
+from shutil import move, copytree
 from subprocess import Popen
 from os import remove
 from os.path import isfile
@@ -89,8 +89,8 @@ class DeviceReset(PHALPlugin):
         # Contents are now at /tmp/neon/neon-image-recipe
         move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
              "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
-        move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
-             "/home/neon/.config/neon", "/home/neon/.config")
+        copytree("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
+                 "/home/neon/.config/neon", "/home/neon/.config")
         Popen("chown -R neon:neon /home/neon", shell=True)
         LOG.info(f"Restored default configuration")
 
