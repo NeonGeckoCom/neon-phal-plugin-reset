@@ -69,7 +69,8 @@ class DeviceReset(PHALPlugin):
                 "system.factory.reset.phal.complete", {"skill_id": self.name})
             self.bus.emit(completed_message)
 
-    def handle_reset_config(self, message):
+    @staticmethod
+    def handle_reset_config(message):
         """
         Handle a request to reset configuration
         """
