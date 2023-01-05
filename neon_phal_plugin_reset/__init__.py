@@ -68,8 +68,8 @@ class DeviceReset(PHALPlugin):
 
     def handle_update_config(self, message):
         """
-        Handle a request to update configuration. Restarts core services after
-        update to ensure reload of default params
+        Handle a request to update configuration. Optionally restarts core
+        services after update to ensure reload of default params
         """
         LOG.info("Getting default config for Neon")
         download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
@@ -93,7 +93,10 @@ class DeviceReset(PHALPlugin):
             rmtree("/tmp/neon/neon-image-recipe-master")
         except Exception as e:
             LOG.exception(e)
-        self.bus.emit(message.forward("system.mycroft.service.restart"))
+        if message.data.get("restart", True):
+            self.bus.emit(message.forward("system.mycroft.service.restart"))
+        else:
+            self.bus.emit(message.response(message.data, message.context))
 
     def handle_factory_reset(self, message):
         """
