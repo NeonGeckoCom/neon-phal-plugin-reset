@@ -153,14 +153,13 @@ class DeviceReset(PHALPlugin):
                                          "image_file": cache_file}))
             return
         from neon_phal_plugin_reset.create_media import download_image
-        image_file = download_image(image_url)
+        image_file = download_image(image_url, cache_file)
         if not image_file:
             LOG.error("Download Failed!")
             self.bus.emit(message.reply("neon.download_os_image.complete",
                                         {"success": False}))
             return
 
-        move(image_file, cache_file)
         LOG.info(f"Image cached at: {cache_file}")
         self.bus.emit(message.reply("neon.download_os_image.complete",
                                     {"success": True,

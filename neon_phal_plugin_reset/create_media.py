@@ -68,20 +68,26 @@ def write_xz_image_to_drive(image_path: str, drive: str = "/dev/sdb"):
     LOG.info("Drive creation completed")
 
 
-def download_image(image_url: str = None) -> Optional[str]:
+def download_image(image_url: str = None,
+                   cache_file: str = None) -> Optional[str]:
     """
     Download an image file from the specified URL. This streams the download to
     an output file for use on low-memory systems
     """
     image_url = image_url or "https://2222.us/app/files/neon_images/pi/" \
                              "mycroft_mark_2/recommended_mark_2.img.xz"
-    LOG.debug(f"Downloading {image_url}")
-    fp, tmpfile = mkstemp()
-    close(fp)
-    with requests.get(image_url, stream=True) as stream:
-        with open(tmpfile, 'wb') as f:
-            for chunk in stream.iter_content(4096):
-                if chunk:
-                    f.write(chunk)
+    if not cache_file:
+        fp, cache_file = mkstemp()
+        close(fp)
+    LOG.debug(f"Downloading {image_url} to {cache_file}")
+    try:
+        with requests.get(image_url, stream=True) as stream:
+            with open(cache_file, 'wb') as f:
+                for chunk in stream.iter_content(4096):
+                    if chunk:
+                        f.write(chunk)
+    except Exception as e:
+        LOG.exception(e)
+        return None
     LOG.debug(f"Download Complete")
-    return tmpfile
+    return cache_file
