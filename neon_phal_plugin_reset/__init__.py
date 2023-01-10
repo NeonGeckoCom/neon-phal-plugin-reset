@@ -144,7 +144,7 @@ class DeviceReset(PHALPlugin):
         """
         image_url = message.data.get("url") or self.default_image_url
         filename = image_url.rsplit('/', 1)[1]
-        cache_file = join(xdg_cache_home(), "neon", filename)
+        cache_file = join("/home/neon/.cache/neon", filename)
         if isfile(cache_file):
             LOG.debug(f"Already downloaded: {cache_file}")
             self.bus.emit(message.reply("neon.download_os_image.complete",
