@@ -49,13 +49,14 @@ def get_drive_mountpoints(drive: str = "/dev/sdb") -> List[str]:
     return [part.mountpoint for part in valid_parts]
 
 
-def prep_drive_for_write(drive: str = "/dev/sdb"):
+def prep_drive_for_write(drive: str = "/dev/sdb") -> bool:
     if not exists(drive):
         LOG.warning(f"Drive doesn't exist: {drive}")
-        return
+        return False
 
     for mp in get_drive_mountpoints(drive):
         run(["/usr/bin/umount", mp])
+    return True
 
 
 def write_xz_image_to_drive(image_path: str, drive: str = "/dev/sdb"):
