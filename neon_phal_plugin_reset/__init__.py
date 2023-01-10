@@ -185,6 +185,7 @@ class DeviceReset(PHALPlugin):
                                   "image_file": image_file})
         else:
             try:
+                LOG.info(f"Starting write of {image_file} to {device}")
                 write_xz_image_to_drive(image_file, device)
                 resp = message.reply("neon.install_os.complete",
                                      {"success": True,
