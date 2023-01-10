@@ -56,7 +56,7 @@ class DeviceReset(PHALPlugin):
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
         self.bus.on("neon.update_config", self.handle_update_config)
         self.bus.on("neon.download_os_image", self.handle_download_image)
-        self.bus.on("neon.install_os", self.handle_os_installation)
+        self.bus.on("neon.install_os_image", self.handle_os_installation)
 
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
@@ -173,13 +173,13 @@ class DeviceReset(PHALPlugin):
         image_file = message.data.get("image_file")
         if not prep_drive_for_write(device):
             LOG.error(f"Invalid device requested: {device}")
-            resp = message.reply("neon.install_os.complete",
+            resp = message.reply("neon.install_os_image.complete",
                                  {"success": False,
                                   "device": device,
                                   "image_file": image_file})
         elif not isfile(image_file):
             LOG.error(f"Invalid file requested: {image_file}")
-            resp = message.reply("neon.install_os.complete",
+            resp = message.reply("neon.install_os_image.complete",
                                  {"success": False,
                                   "device": device,
                                   "image_file": image_file})
@@ -187,14 +187,14 @@ class DeviceReset(PHALPlugin):
             try:
                 LOG.info(f"Starting write of {image_file} to {device}")
                 write_xz_image_to_drive(image_file, device)
-                resp = message.reply("neon.install_os.complete",
+                resp = message.reply("neon.install_os_image.complete",
                                      {"success": True,
                                       "device": device,
                                       "image_file": image_file})
                 LOG.debug("Image write completed")
             except Exception as e:
                 LOG.exception(e)
-                resp = message.reply("neon.install_os.complete",
+                resp = message.reply("neon.install_os_image.complete",
                                      {"success": False,
                                       "device": device,
                                       "image_file": image_file})
