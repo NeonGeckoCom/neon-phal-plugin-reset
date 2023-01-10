@@ -70,18 +70,18 @@ def write_xz_image_to_drive(image_path: str, drive: str = "/dev/sdb"):
 
 def download_image(image_url: str = None) -> Optional[str]:
     """
-    Download an image file from the specified URL
+    Download an image file from the specified URL. This streams the download to
+    an output file for use on low-memory systems
     """
     image_url = image_url or "https://2222.us/app/files/neon_images/pi/" \
                              "mycroft_mark_2/recommended_mark_2.img.xz"
     LOG.debug(f"Downloading {image_url}")
-    request = requests.get(image_url)
-    LOG.debug(f"Downloaded Completed")
-    if not request.ok:
-        LOG.error(request.text)
-        return
     fp, tmpfile = mkstemp()
     close(fp)
-    with open(tmpfile, 'wb') as f:
-        f.write(request.content)
+    with requests.get(image_url, stream=True) as stream:
+        with open(tmpfile, 'wb') as f:
+            for chunk in stream.iter_content(4096):
+                if chunk:
+                    f.write(chunk)
+    LOG.debug(f"Download Complete")
     return tmpfile

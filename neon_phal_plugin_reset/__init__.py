@@ -161,7 +161,7 @@ class DeviceReset(PHALPlugin):
             return
 
         move(image_file, cache_file)
-        LOG.debug(f"Image cached at: {cache_file}")
+        LOG.info(f"Image cached at: {cache_file}")
         self.bus.emit(message.reply("neon.download_os_image.complete",
                                     {"success": True,
                                      "from_cache": False,
