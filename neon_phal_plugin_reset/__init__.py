@@ -29,12 +29,13 @@
 from shutil import move, rmtree
 from subprocess import Popen
 from os import remove
-from os.path import isfile
+from os.path import isfile, join
 from threading import RLock
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_skill_installer import download_extract_zip
+from ovos_utils.xdg_utils import xdg_cache_home
 
 
 class DeviceReset(PHALPlugin):
@@ -46,10 +47,17 @@ class DeviceReset(PHALPlugin):
         self.username = self.config.get('username') or 'neon'
         self.reset_command = self.config.get('reset_command',
                                              "systemctl start neon-reset")
+        self.default_image_url = self.config.get("default_image_url") or \
+            "https://2222.us/app/files/neon_images/pi/mycroft_mark_2/" \
+            "recommended_mark_2.img.xz"
+
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
         self.bus.on("neon.update_config", self.handle_update_config)
+        self.bus.on("neon.download_os_image", self.handle_download_image)
+        self.bus.on("neon.install_os_image", self.handle_os_installation)
+
         # In case this plugin starts after system plugin, emit registration
         self.bus.emit(Message("system.factory.reset.register",
                               {"skill_id": self.name}))
@@ -129,3 +137,65 @@ class DeviceReset(PHALPlugin):
             self.reset_lock.release()
         else:
             LOG.warning(f"Requested reset but a reset is in progress")
+
+    def handle_download_image(self, message: Message):
+        """
+        Handle a request to download a Neon OS Image
+        """
+        image_url = message.data.get("url") or self.default_image_url
+        filename = image_url.rsplit('/', 1)[1]
+        cache_file = join("/home/neon/.cache/neon", filename)
+        if isfile(cache_file):
+            LOG.debug(f"Already downloaded: {cache_file}")
+            self.bus.emit(message.reply("neon.download_os_image.complete",
+                                        {"success": True,
+                                         "from_cache": True,
+                                         "image_file": cache_file}))
+            return
+        from neon_phal_plugin_reset.create_media import download_image
+        image_file = download_image(image_url, cache_file)
+        if not image_file:
+            LOG.error("Download Failed!")
+            self.bus.emit(message.reply("neon.download_os_image.complete",
+                                        {"success": False}))
+            return
+
+        LOG.info(f"Image cached at: {cache_file}")
+        self.bus.emit(message.reply("neon.download_os_image.complete",
+                                    {"success": True,
+                                     "from_cache": False,
+                                     "image_file": cache_file}))
+
+    def handle_os_installation(self, message):
+        from neon_phal_plugin_reset.create_media import prep_drive_for_write, \
+            write_xz_image_to_drive
+        device = message.data.get("device")
+        image_file = message.data.get("image_file")
+        if not prep_drive_for_write(device):
+            LOG.error(f"Invalid device requested: {device}")
+            resp = message.reply("neon.install_os_image.complete",
+                                 {"success": False,
+                                  "device": device,
+                                  "image_file": image_file})
+        elif not isfile(image_file):
+            LOG.error(f"Invalid file requested: {image_file}")
+            resp = message.reply("neon.install_os_image.complete",
+                                 {"success": False,
+                                  "device": device,
+                                  "image_file": image_file})
+        else:
+            try:
+                LOG.info(f"Starting write of {image_file} to {device}")
+                write_xz_image_to_drive(image_file, device)
+                resp = message.reply("neon.install_os_image.complete",
+                                     {"success": True,
+                                      "device": device,
+                                      "image_file": image_file})
+                LOG.debug("Image write completed")
+            except Exception as e:
+                LOG.exception(e)
+                resp = message.reply("neon.install_os_image.complete",
+                                     {"success": False,
+                                      "device": device,
+                                      "image_file": image_file})
+        self.bus.emit(resp)
