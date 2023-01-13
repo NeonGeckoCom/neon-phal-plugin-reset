@@ -33,9 +33,12 @@ def configure_reset():
     """
     Configure the reset SystemD service.
     """
-    from os import remove
+    from os import remove, getenv
     from os.path import isfile, expanduser
     from subprocess import run
+    if getenv("NEON_IN_SETUP", False):
+        print("Neon setup, skip service configuration")
+        return
     if isfile("/usr/lib/systemd/system/neon-reset.service"):
         print("Reset service already enabled")
         return
