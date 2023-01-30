@@ -31,6 +31,8 @@ from subprocess import Popen
 from os import remove
 from os.path import isfile, join
 from threading import RLock
+from zipfile import BadZipFile
+
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
@@ -78,13 +80,19 @@ class DeviceReset(PHALPlugin):
         Handle a request to update configuration. Optionally restarts core
         services after update to ensure reload of default params
         """
-        from neon_utils.packaging_utils import get_neon_core_version
+        from neon_utils.packaging_utils import get_package_version_spec
         version = message.data.get("version") or \
-            get_neon_core_version().split('a')[0]
+            get_package_version_spec("neon-core").split('a')[0]
         LOG.info(f"Getting default config for Neon version: {version}")
         try:
             download_url = f"https://github.com/neongeckocom/" \
                            f"neon-image-recipe/archive/{version}.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/")
+        except BadZipFile:
+            LOG.warning(f"No branch for version: {version}. Trying default")
+            download_url = "https://github.com/neongeckocom/" \
+                           "neon-image-recipe/archive/master.zip"
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/")
         except Exception as e:
