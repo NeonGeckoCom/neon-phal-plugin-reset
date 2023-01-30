@@ -35,7 +35,6 @@ from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_skill_installer import download_extract_zip
-from ovos_utils.xdg_utils import xdg_cache_home
 
 
 class DeviceReset(PHALPlugin):
@@ -79,10 +78,21 @@ class DeviceReset(PHALPlugin):
         Handle a request to update configuration. Optionally restarts core
         services after update to ensure reload of default params
         """
-        LOG.info("Getting default config for Neon")
-        download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
-        LOG.debug(f"Downloading from {download_url}")
-        download_extract_zip(download_url, "/tmp/neon/")
+        from neon_utils.packaging_utils import get_neon_core_version
+        version = message.data.get("version") or \
+            get_neon_core_version().split('a')[0]
+        LOG.info(f"Getting default config for Neon version: {version}")
+        try:
+            download_url = f"https://github.com/neongeckocom/" \
+                           f"neon-image-recipe/archive/{version}.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/")
+        except Exception as e:
+            LOG.exception(e)
+            download_url = "https://github.com/neongeckocom/" \
+                           "neon-image-recipe/archive/master.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/")
 
         # Contents are now at /tmp/neon/neon-image-recipe
         try:
