@@ -31,11 +31,12 @@ from subprocess import Popen
 from os import remove
 from os.path import isfile, join
 from threading import RLock
+from zipfile import BadZipFile
+
 from mycroft_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_skill_installer import download_extract_zip
-from ovos_utils.xdg_utils import xdg_cache_home
 
 
 class DeviceReset(PHALPlugin):
@@ -79,26 +80,46 @@ class DeviceReset(PHALPlugin):
         Handle a request to update configuration. Optionally restarts core
         services after update to ensure reload of default params
         """
-        LOG.info("Getting default config for Neon")
-        download_url = "https://github.com/neongeckocom/neon-image-recipe/archive/master.zip"
-        LOG.debug(f"Downloading from {download_url}")
-        download_extract_zip(download_url, "/tmp/neon/")
+        from neon_utils.packaging_utils import get_package_version_spec
+        version = message.data.get("version") or \
+            get_package_version_spec("neon-core").split('a')[0]
+        LOG.info(f"Getting default config for Neon version: {version}")
+        try:
+            download_url = f"https://github.com/neongeckocom/" \
+                           f"neon-image-recipe/archive/{version}.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/",
+                                 skill_folder_name="neon-image-recipe")
+        except BadZipFile:
+            LOG.warning(f"No branch for version: {version}. Trying default")
+            download_url = "https://github.com/neongeckocom/" \
+                           "neon-image-recipe/archive/master.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/",
+                                 skill_folder_name="neon-image-recipe")
+        except Exception as e:
+            LOG.exception(e)
+            download_url = "https://github.com/neongeckocom/" \
+                           "neon-image-recipe/archive/master.zip"
+            LOG.debug(f"Downloading from {download_url}")
+            download_extract_zip(download_url, "/tmp/neon/",
+                                 skill_folder_name="neon-image-recipe")
 
         # Contents are now at /tmp/neon/neon-image-recipe
         try:
             if message.data.get('skill_config'):
                 LOG.debug("Updating skill config from default")
                 Popen(["/usr/bin/cp", "-r",
-                       "/tmp/neon/neon-image-recipe-master/05_neon_core"
+                       "/tmp/neon/neon-image-recipe/05_neon_core"
                        "/overlay/home/neon/.config/neon",
                        "/home/neon/.config/"])
                 Popen("chown -R neon:neon /home/neon", shell=True)
             if message.data.get('core_config'):
                 LOG.debug("Updating system config from default")
-                move("/tmp/neon/neon-image-recipe-master/05_neon_core/overlay"
+                move("/tmp/neon/neon-image-recipe/05_neon_core/overlay"
                      "/etc/neon/neon.yaml", "/etc/neon/neon.yaml")
             LOG.info(f"Restored default configuration")
-            rmtree("/tmp/neon/neon-image-recipe-master")
+            rmtree("/tmp/neon/neon-image-recipe")
         except Exception as e:
             LOG.exception(e)
         if message.data.get("restart", True):
