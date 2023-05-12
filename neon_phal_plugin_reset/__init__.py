@@ -99,8 +99,13 @@ class DeviceReset(PHALPlugin):
                                  skill_folder_name="neon-image-recipe")
         except Exception as e:
             LOG.exception(e)
-            download_url = "https://github.com/neongeckocom/" \
-                           "neon-image-recipe/archive/master.zip"
+            if version.startswith("22."):
+                LOG.warning("Old core version using `master` branch default")
+                download_url = "https://github.com/neongeckocom/" \
+                               "neon-image-recipe/archive/master.zip"
+            else:
+                download_url = "https://github.com/neongeckocom/" \
+                               "neon-image-recipe/archive/dev.zip"
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/",
                                  skill_folder_name="neon-image-recipe")
