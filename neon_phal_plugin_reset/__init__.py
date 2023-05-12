@@ -84,6 +84,9 @@ class DeviceReset(PHALPlugin):
         version = message.data.get("version") or \
             get_package_version_spec("neon-core").split('a')[0]
         LOG.info(f"Getting default config for Neon version: {version}")
+        default_branch = "master" if version.startswith("22.") else "dev"
+        default_dl_url = "https://github.com/neongeckocom/" \
+                         f"neon-image-recipe/archive/{default_branch}.zip"
         try:
             download_url = f"https://github.com/neongeckocom/" \
                            f"neon-image-recipe/archive/{version}.zip"
@@ -92,20 +95,13 @@ class DeviceReset(PHALPlugin):
                                  skill_folder_name="neon-image-recipe")
         except BadZipFile:
             LOG.warning(f"No branch for version: {version}. Trying default")
-            download_url = "https://github.com/neongeckocom/" \
-                           "neon-image-recipe/archive/master.zip"
+            download_url = default_dl_url
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/",
                                  skill_folder_name="neon-image-recipe")
         except Exception as e:
             LOG.exception(e)
-            if version.startswith("22."):
-                LOG.warning("Old core version using `master` branch default")
-                download_url = "https://github.com/neongeckocom/" \
-                               "neon-image-recipe/archive/master.zip"
-            else:
-                download_url = "https://github.com/neongeckocom/" \
-                               "neon-image-recipe/archive/dev.zip"
+            download_url = default_dl_url
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/",
                                  skill_folder_name="neon-image-recipe")
