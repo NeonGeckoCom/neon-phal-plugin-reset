@@ -112,8 +112,8 @@ class DeviceReset(PHALPlugin):
                 LOG.debug("Updating skill config from default")
                 Popen(["/usr/bin/cp", "-r",
                        "/tmp/neon/neon-image-recipe/05_neon_core"
-                       "/overlay/home/neon/.config/neon",
-                       "/home/neon/.config/"])
+                       "/overlay/home/neon/.config/neon/skills",
+                       "/home/neon/.config/neon/"])
                 Popen("chown -R neon:neon /home/neon", shell=True)
             if message.data.get('core_config'):
                 LOG.debug("Updating system config from default")
