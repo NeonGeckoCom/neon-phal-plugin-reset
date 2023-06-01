@@ -29,7 +29,7 @@
 from shutil import move, rmtree
 from subprocess import Popen
 from os import remove
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 from threading import RLock
 from zipfile import BadZipFile
 
@@ -114,6 +114,12 @@ class DeviceReset(PHALPlugin):
                        "/tmp/neon/neon-image-recipe/05_neon_core"
                        "/overlay/home/neon/.config/neon/skills",
                        "/home/neon/.config/neon/"])
+                if isdir("/tmp/neon/neon-image-recipe/05_neon_core/overlay/"
+                         "home/neon/.config/neon/apps"):
+                    Popen(["/usr/bin/cp", "-r",
+                           "/tmp/neon/neon-image-recipe/05_neon_core"
+                           "/overlay/home/neon/.config/neon/apps",
+                           "/home/neon/.config/neon/"])
                 Popen("chown -R neon:neon /home/neon", shell=True)
             if message.data.get('core_config'):
                 LOG.debug("Updating system config from default")
