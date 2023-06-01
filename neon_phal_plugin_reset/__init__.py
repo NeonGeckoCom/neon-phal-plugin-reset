@@ -94,7 +94,8 @@ class DeviceReset(PHALPlugin):
             download_extract_zip(download_url, "/tmp/neon/",
                                  skill_folder_name="neon-image-recipe")
         except BadZipFile:
-            LOG.warning(f"No branch for version: {version}. Trying default")
+            LOG.debug(f"No branch for version: {version}. "
+                      f"Trying default {default_branch}")
             download_url = default_dl_url
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/",
@@ -105,7 +106,7 @@ class DeviceReset(PHALPlugin):
             LOG.debug(f"Downloading from {download_url}")
             download_extract_zip(download_url, "/tmp/neon/",
                                  skill_folder_name="neon-image-recipe")
-
+        LOG.info(f"Downloaded default config from {download_url}")
         # Contents are now at /tmp/neon/neon-image-recipe
         try:
             if message.data.get('skill_config'):
@@ -114,6 +115,14 @@ class DeviceReset(PHALPlugin):
                        "/tmp/neon/neon-image-recipe/05_neon_core"
                        "/overlay/home/neon/.config/neon/skills",
                        "/home/neon/.config/neon/"])
+                if isdir("/tmp/neon/neon-image-recipe/05_neon_core/overlay/"
+                         "home/neon/.config/neon/apps"):
+                    Popen(["/usr/bin/cp", "-r",
+                           "/tmp/neon/neon-image-recipe/05_neon_core"
+                           "/overlay/home/neon/.config/neon/apps",
+                           "/home/neon/.config/neon/"])
+                Popen("chown -R neon:neon /home/neon", shell=True)
+            if message.data.get('apps_config'):
                 if isdir("/tmp/neon/neon-image-recipe/05_neon_core/overlay/"
                          "home/neon/.config/neon/apps"):
                     Popen(["/usr/bin/cp", "-r",
