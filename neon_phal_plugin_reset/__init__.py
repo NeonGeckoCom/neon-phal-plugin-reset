@@ -33,7 +33,7 @@ from os.path import isfile, join, isdir
 from threading import RLock
 from zipfile import BadZipFile
 
-from mycroft_bus_client import Message
+from ovos_bus_client import Message
 from ovos_utils.log import LOG
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_skill_installer import download_extract_zip

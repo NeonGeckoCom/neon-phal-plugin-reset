@@ -1,4 +1,5 @@
 ovos-utils~=0.0.26
-mycroft-messagebus-client~=0.10
 ovos-plugin-manager~=0.0.20
 requests
+ovos-bus-client~=0.0.3
+ovos-skill-installer~=0.0.5
