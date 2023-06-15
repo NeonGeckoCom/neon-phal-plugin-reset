@@ -1,30 +1,12 @@
 # Changelog
 
-## [0.1.1a4](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.1.1a4) (2023-06-01)
+## [0.2.1a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.2.1a1) (2023-06-07)
 
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.1.1a3...0.1.1a4)
-
-**Merged pull requests:**
-
-- Separate `apps` config updates from `skill` config updates [\#24](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/24) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.1.1a3](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.1.1a3) (2023-06-01)
-
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.1.1a2...0.1.1a3)
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.2.0...0.2.1a1)
 
 **Merged pull requests:**
 
-- Add `apps` configuration to configuration updates \(OCP\) [\#23](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/23) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.1.1a2](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.1.1a2) (2023-05-15)
-
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.1.0...0.1.1a2)
-
-**Merged pull requests:**
-
-- Update GH Automation to latest best practices [\#22](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/22) ([NeonDaniel](https://github.com/NeonDaniel))
-- Fix configuration updates to preserve user-specified configuration [\#21](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/21) ([NeonDaniel](https://github.com/NeonDaniel))
-- Update default config for new releases to `dev` branch [\#19](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/19) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update messagebus dependency [\#26](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/26) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
