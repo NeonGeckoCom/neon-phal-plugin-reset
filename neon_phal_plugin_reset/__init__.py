@@ -26,7 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from shutil import move, rmtree
+from shutil import move, rmtree, copytree, copyfile
 from subprocess import Popen
 from os import remove
 from os.path import isfile, join, isdir
@@ -51,7 +51,10 @@ class DeviceReset(PHALPlugin):
         self.default_image_url = self.config.get("default_image_url") or \
             "https://2222.us/app/files/neon_images/pi/mycroft_mark_2/" \
             "recommended_mark_2.img.xz"
+        self.default_config_url = self.config.get("default_config_url")
+        self.config_relative_path = self.config.get("default_config_path", "")
 
+        # Register messagebus event handlers
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
@@ -79,6 +82,48 @@ class DeviceReset(PHALPlugin):
         """
         Handle a request to update configuration. Optionally restarts core
         services after update to ensure reload of default params
+        """
+        if not self.default_config_url:
+            LOG.info(f"Configuration source not configured; use legacy path")
+            self._legacy_update_config(message)
+            return
+        from neon_utils.packaging_utils import get_package_version_spec
+        version = message.data.get("version") or \
+            get_package_version_spec("neon-core").split('a')[0]
+        update_url = self.default_config_url.format(version)
+        LOG.info(f"Getting default config from: {update_url}")
+        download_extract_zip(update_url, "/tmp/neon",
+                             skill_folder_name="default_config")
+        base_config_path = f"/tmp/neon/default_config/" \
+                           f"{self.config_relative_path}"
+
+        # Determine which config should be updated
+        do_skills = message.data.get('skill_config', True)
+        do_apps = message.data.get('apps_config', do_skills)
+        do_core = message.data.get('core_config', False)
+
+        if do_skills:
+            LOG.info("updating default skill config")
+            copytree(join(base_config_path, "skills"),
+                     "/home/neon/.config/neon/")
+        if do_apps:
+            LOG.info("updating default app config")
+            copytree(join(base_config_path, "apps"),
+                     "/home/neon/.config/neon/")
+        if do_core:
+            LOG.info("updating default core config")
+            copyfile(join(base_config_path, "neon.yaml"), "/etc/neon/neon.yaml")
+
+        if message.data.get("restart", True):
+            self.bus.emit(message.forward("system.mycroft.service.restart"))
+        else:
+            self.bus.emit(message.response(message.data, message.context))
+
+    def _legacy_update_config(self, message):
+        """
+        Backwards-compat handling of default configuration from
+        `neon-image-recipe`. Newer images use versioned configuration files from
+        the `NeonCore` repository to keep defaults in sync with releases.
         """
         from neon_utils.packaging_utils import get_package_version_spec
         version = message.data.get("version") or \
