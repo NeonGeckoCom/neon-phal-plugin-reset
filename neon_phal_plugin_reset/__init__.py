@@ -114,7 +114,8 @@ class DeviceReset(PHALPlugin):
                          "/home/neon/.config/neon/apps", dirs_exist_ok=True)
             if do_core:
                 LOG.info("updating default core config")
-                copyfile(join(base_config_path, "neon.yaml"), "/etc/neon/neon.yaml")
+                copyfile(join(base_config_path, "neon.yaml"),
+                         "/etc/neon/neon.yaml")
         except Exception as e:
             LOG.exception(e)
         if isdir(default_config_path):
