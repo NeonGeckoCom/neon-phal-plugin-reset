@@ -88,32 +88,38 @@ class DeviceReset(PHALPlugin):
             self._legacy_update_config(message)
             return
         from neon_utils.packaging_utils import get_package_version_spec
-        version = message.data.get("version") or \
-            get_package_version_spec("neon-core").split('a')[0]
-        update_url = self.default_config_url.format(version)
-        LOG.info(f"Getting default config from: {update_url}")
-        download_extract_zip(update_url, "/tmp/neon",
-                             skill_folder_name="default_config")
-        base_config_path = f"/tmp/neon/default_config/" \
-                           f"{self.config_relative_path}"
+        default_config_path = "/tmp/neon/default_config"
+        try:
+            version = message.data.get("version") or \
+                get_package_version_spec("neon-core").split('a')[0]
+            update_url = self.default_config_url.format(version)
+            LOG.info(f"Getting default config from: {update_url}")
+            download_extract_zip(update_url, "/tmp/neon",
+                                 skill_folder_name="default_config")
+            base_config_path = f"{default_config_path}/" \
+                               f"{self.config_relative_path}"
 
-        # Determine which config should be updated
-        do_skills = message.data.get('skill_config', True)
-        do_apps = message.data.get('apps_config', do_skills)
-        do_core = message.data.get('core_config', False)
+            # Determine which config should be updated
+            do_skills = message.data.get('skill_config', True)
+            do_apps = message.data.get('apps_config', do_skills)
+            do_core = message.data.get('core_config', False)
 
-        if do_skills:
-            LOG.info("updating default skill config")
-            copytree(join(base_config_path, "skills"),
-                     "/home/neon/.config/neon/")
-        if do_apps:
-            LOG.info("updating default app config")
-            copytree(join(base_config_path, "apps"),
-                     "/home/neon/.config/neon/")
-        if do_core:
-            LOG.info("updating default core config")
-            copyfile(join(base_config_path, "neon.yaml"), "/etc/neon/neon.yaml")
-
+            if do_skills:
+                LOG.info("updating default skill config")
+                copytree(join(base_config_path, "skills"),
+                         "/home/neon/.config/neon/")
+            if do_apps:
+                LOG.info("updating default app config")
+                copytree(join(base_config_path, "apps"),
+                         "/home/neon/.config/neon/")
+            if do_core:
+                LOG.info("updating default core config")
+                copyfile(join(base_config_path, "neon.yaml"), "/etc/neon/neon.yaml")
+        except Exception as e:
+            LOG.exception(e)
+        if isdir(default_config_path):
+            rmtree(default_config_path)
+        LOG.info("Configuration updates complete")
         if message.data.get("restart", True):
             self.bus.emit(message.forward("system.mycroft.service.restart"))
         else:
