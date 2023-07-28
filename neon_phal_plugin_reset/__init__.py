@@ -107,11 +107,11 @@ class DeviceReset(PHALPlugin):
             if do_skills:
                 LOG.info("updating default skill config")
                 copytree(join(base_config_path, "skills"),
-                         "/home/neon/.config/neon/")
+                         "/home/neon/.config/neon/skills", dirs_exist_ok=True)
             if do_apps:
                 LOG.info("updating default app config")
                 copytree(join(base_config_path, "apps"),
-                         "/home/neon/.config/neon/")
+                         "/home/neon/.config/neon/apps", dirs_exist_ok=True)
             if do_core:
                 LOG.info("updating default core config")
                 copyfile(join(base_config_path, "neon.yaml"), "/etc/neon/neon.yaml")
