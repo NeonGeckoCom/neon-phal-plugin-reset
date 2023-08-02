@@ -25,13 +25,14 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from tempfile import mkstemp
 
 import psutil
+import shutil
 
+from tempfile import mkstemp
 from subprocess import run, PIPE, Popen
-from os import close
-from os.path import exists
+from os import close, remove
+from os.path import exists, isfile
 from typing import List, Optional
 
 import requests
@@ -79,15 +80,19 @@ def download_image(image_url: str = None,
     if not cache_file:
         fp, cache_file = mkstemp()
         close(fp)
+    download_file = f"{cache_file}.part"
     LOG.debug(f"Downloading {image_url} to {cache_file}")
     try:
         with requests.get(image_url, stream=True) as stream:
-            with open(cache_file, 'wb') as f:
+            with open(download_file, 'wb') as f:
                 for chunk in stream.iter_content(4096):
                     if chunk:
                         f.write(chunk)
+        shutil.move(download_file, cache_file)
     except Exception as e:
         LOG.exception(e)
+        if isfile(download_file):
+            remove(download_file)
         return None
     LOG.debug(f"Download Complete")
     return cache_file
