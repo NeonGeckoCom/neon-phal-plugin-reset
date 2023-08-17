@@ -264,12 +264,14 @@ class DeviceReset(PHALPlugin):
             LOG.error(f"Invalid device requested: {device}")
             resp = message.reply("neon.install_os_image.complete",
                                  {"success": False,
+                                  "error": "no_valid_device",
                                   "device": device,
                                   "image_file": image_file})
         elif not isfile(image_file):
             LOG.error(f"Invalid file requested: {image_file}")
             resp = message.reply("neon.install_os_image.complete",
                                  {"success": False,
+                                  "error": "no_image_file",
                                   "device": device,
                                   "image_file": image_file})
         else:
@@ -285,6 +287,7 @@ class DeviceReset(PHALPlugin):
                 LOG.exception(e)
                 resp = message.reply("neon.install_os_image.complete",
                                      {"success": False,
+                                      "error": repr(e),
                                       "device": device,
                                       "image_file": image_file})
         self.bus.emit(resp)
