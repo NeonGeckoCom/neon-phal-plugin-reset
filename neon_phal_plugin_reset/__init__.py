@@ -255,6 +255,16 @@ class DeviceReset(PHALPlugin):
                                      "from_cache": False,
                                      "image_file": cache_file}))
 
+    @staticmethod
+    def _get_block_devices() -> str:
+        try:
+            from subprocess import run
+            return run(["lsblk | grep disk"], shell=True, text=True,
+                       capture_output=True).stdout
+        except Exception as e:
+            LOG.exception(e)
+            return "Unknown"
+
     def handle_os_installation(self, message):
         from neon_phal_plugin_reset.create_media import prep_drive_for_write, \
             write_xz_image_to_drive
@@ -262,6 +272,7 @@ class DeviceReset(PHALPlugin):
         image_file = message.data.get("image_file")
         if not prep_drive_for_write(device):
             LOG.error(f"Invalid device requested: {device}")
+            LOG.info(f"Available devices: {self._get_block_devices()}")
             resp = message.reply("neon.install_os_image.complete",
                                  {"success": False,
                                   "error": "no_valid_device",
