@@ -1,20 +1,20 @@
 # Changelog
 
-## [0.2.2a2](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.2.2a2) (2023-08-02)
+## [0.3.1a2](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.3.1a2) (2023-08-18)
 
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.2.2a1...0.2.2a2)
-
-**Merged pull requests:**
-
-- Better image download exception handling [\#30](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/30) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.2.2a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.2.2a1) (2023-07-28)
-
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.2.1...0.2.2a1)
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.3.1a1...0.3.1a2)
 
 **Merged pull requests:**
 
-- Add support for a configured update URL and relative path [\#29](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/29) ([NeonDaniel](https://github.com/NeonDaniel))
+- Log block devices with errors to troubleshoot drive image failures [\#33](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/33) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [0.3.1a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.3.1a1) (2023-08-17)
+
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.3.0...0.3.1a1)
+
+**Merged pull requests:**
+
+- Add `error` data to OS installation failures [\#32](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/32) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
