@@ -1,20 +1,12 @@
 # Changelog
 
-## [0.3.1a2](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.3.1a2) (2023-08-18)
+## [0.4.1a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.4.1a1) (2024-04-08)
 
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.3.1a1...0.3.1a2)
-
-**Merged pull requests:**
-
-- Log block devices with errors to troubleshoot drive image failures [\#33](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/33) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.3.1a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.3.1a1) (2023-08-17)
-
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.3.0...0.3.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.4.0...0.4.1a1)
 
 **Merged pull requests:**
 
-- Add `error` data to OS installation failures [\#32](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/32) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update ovos-utils to allow 0.X versions [\#35](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/35) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
