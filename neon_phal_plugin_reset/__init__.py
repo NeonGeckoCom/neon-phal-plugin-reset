@@ -58,6 +58,7 @@ class DeviceReset(PHALPlugin):
         self.bus.on("system.factory.reset.ping",
                     self.handle_register_factory_reset_handler)
         self.bus.on('system.factory.reset.phal', self.handle_factory_reset)
+        self.bus.on('neon.clear_data', self.handle_clear_data)
         self.bus.on("neon.update_config", self.handle_update_config)
         self.bus.on("neon.download_os_image", self.handle_download_image)
         self.bus.on("neon.install_os_image", self.handle_os_installation)
@@ -302,3 +303,21 @@ class DeviceReset(PHALPlugin):
                                       "device": device,
                                       "image_file": image_file})
         self.bus.emit(resp)
+
+    def handle_clear_data(self, message):
+        """
+        Handle a `neon.clear_data` request to clear user-specific data
+        """
+        from neon_phal_plugin_reset.clear_data import clear_user_data, UserData
+        data_to_clear = message.data.get("data_to_remove")
+        user = message.data.get("username")
+        if user != message.context.get("username"):
+            LOG.error(f"Request to clear {user} profile came from "
+                      f"{message.context.get('username')}")
+            # TODO: Maybe this request should just be ignored?
+            message.context['username'] = user
+        for dtype in data_to_clear:
+            if isinstance(dtype, int):
+                dtype = UserData(dtype)
+            LOG.info(f"Clearing {dtype} for {user}")
+            clear_user_data(dtype, message, self.bus)
