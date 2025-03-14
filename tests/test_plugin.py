@@ -29,6 +29,8 @@
 from time import sleep
 import unittest
 import neon_utils
+import os.path
+import shutil
 
 from unittest.mock import patch, MagicMock
 from ovos_bus_client import Message
@@ -100,15 +102,12 @@ class TestDeviceReset(unittest.TestCase):
         self.assertEqual(args.msg_type, "system.factory.reset.phal.complete")
         self.assertEqual(args.data.get("skill_id"), self.plugin.name)
 
-    @patch('neon_phal_plugin_reset.__init__.remove')
-    @patch('neon_phal_plugin_reset.__init__.isfile')
-    @patch('neon_phal_plugin_reset.__init__.Popen')
-    def test_handle_factory_reset(self, mock_popen, mock_isfile, mock_remove):
+    def test_handle_factory_reset(self):
         # TODO
         pass
 
     @patch('neon_phal_plugin_reset.create_media.download_image')
-    @patch('neon_phal_plugin_reset.__init__.isfile')
+    @patch('os.path.isfile')
     def test_handle_download_image(self, mock_isfile, mock_download_image):
         self.bus.reset_mock()
 
@@ -141,7 +140,7 @@ class TestDeviceReset(unittest.TestCase):
 
     @patch('neon_phal_plugin_reset.create_media.prep_drive_for_write')
     @patch('neon_phal_plugin_reset.create_media.write_xz_image_to_drive')
-    @patch('neon_phal_plugin_reset.__init__.isfile')
+    @patch('os.path.isfile')
     def test_handle_os_installation(self, mock_isfile, mock_write, mock_prep):
         # Test with invalid device
         mock_prep.return_value = False
@@ -181,11 +180,11 @@ class TestDeviceReset(unittest.TestCase):
         # mock_write.assert_called_once_with("/tmp/test.img.xz", "/dev/sda")
 
     @patch('neon_utils.packaging_utils.get_package_version_spec')
-    @patch('neon_phal_plugin_reset.__init__.download_extract_zip')
-    @patch('neon_phal_plugin_reset.__init__.copytree')
-    @patch('neon_phal_plugin_reset.__init__.copyfile')
-    @patch('neon_phal_plugin_reset.__init__.isdir')
-    @patch('neon_phal_plugin_reset.__init__.rmtree')
+    @patch('ovos_skill_installer.download_extract_zip')
+    @patch('shutil.copytree')
+    @patch('shutil.copyfile')
+    @patch('os.path.isdir')
+    @patch('shutil.rmtree')
     def test_handle_update_config(self, mock_rmtree, mock_isdir, mock_copyfile, 
                                  mock_copytree, mock_download, mock_version):
         self.bus.reset_mock()
