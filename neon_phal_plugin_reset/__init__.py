@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Framework
 # All trademark and other rights reserved by their respective owners
-# Copyright 2008-2022 Neongecko.com Inc.
+# Copyright 2008-2025 Neongecko.com Inc.
 # Contributors: Daniel McKnight, Guy Daniels, Elon Gasper, Richard Leeds,
 # Regina Bloomstine, Casimiro Ferreira, Andrii Pernatii, Kirill Hrymailo
 # BSD-3 License
@@ -49,8 +49,8 @@ class DeviceReset(PHALPlugin):
         self.reset_command = self.config.get('reset_command',
                                              "systemctl start neon-reset")
         self.default_image_url = self.config.get("default_image_url") or \
-            "https://2222.us/app/files/neon_images/pi/mycroft_mark_2/" \
-            "recommended_mark_2.img.xz"
+            "https://download.neonaiservices.com/neon_os/recommended/" \
+            "mark_2.img.xz"
         self.default_config_url = self.config.get("default_config_url")
         self.config_relative_path = self.config.get("default_config_path", "")
 

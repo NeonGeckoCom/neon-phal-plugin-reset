@@ -1,12 +1,28 @@
 # Changelog
 
-## [0.4.1a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.4.1a1) (2024-04-08)
+## [0.4.2a3](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.4.2a3) (2025-03-14)
 
-[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.4.0...0.4.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.4.2a2...0.4.2a3)
 
 **Merged pull requests:**
 
-- Update ovos-utils to allow 0.X versions [\#35](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/35) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update default download URL and add unit tests [\#39](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/39) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [0.4.2a2](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.4.2a2) (2025-03-14)
+
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.4.2a1...0.4.2a2)
+
+**Merged pull requests:**
+
+- Update license notices to 2025 [\#38](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/38) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [0.4.2a1](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/tree/0.4.2a1) (2024-09-19)
+
+[Full Changelog](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/compare/0.4.1...0.4.2a1)
+
+**Merged pull requests:**
+
+- Update dependencies to allow OVOS 0.x dependency resolution [\#37](https://github.com/NeonGeckoCom/neon-phal-plugin-reset/pull/37) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
