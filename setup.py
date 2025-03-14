@@ -79,6 +79,9 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=get_requirements('requirements.txt'),
+    extras_require={
+        'test': get_requirements('test.txt')
+    },
     packages=find_packages(),
     cmdclass={'install': CustomInstall},
     include_package_data=True,
