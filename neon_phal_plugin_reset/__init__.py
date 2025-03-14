@@ -49,8 +49,8 @@ class DeviceReset(PHALPlugin):
         self.reset_command = self.config.get('reset_command',
                                              "systemctl start neon-reset")
         self.default_image_url = self.config.get("default_image_url") or \
-            "https://2222.us/app/files/neon_images/pi/mycroft_mark_2/" \
-            "recommended_mark_2.img.xz"
+            "https://download.neonaiservices.com/neon_os/recommended/" \
+            "mark_2.img.xz"
         self.default_config_url = self.config.get("default_config_url")
         self.config_relative_path = self.config.get("default_config_path", "")
 
